@@ -1,1 +1,4 @@
 node_modules
+image
+util/metadata_out
+util/all_metadata.json

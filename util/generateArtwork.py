@@ -37,7 +37,7 @@ eyeFiles = {
 }
 
 
-TOTAL_COMBO = 16
+TOTAL_COMBO = len(background) * len(square) * len(eye)
 
 traits = []
 
@@ -69,7 +69,7 @@ print(allUnique(traits))
 
 # ADD TOKEN IDS TO JSON
 
-i = 0
+i = 1
 for item in traits:
     item["tokenId"] = i
     i = i + 1
@@ -79,18 +79,41 @@ for item in traits:
     im1 = Image.open(f'../image/Backgrounds/{backgroundFile[item["Background"]]}.jpeg').convert('RGBA')
     im2 = Image.open(f'../image/Squares/{squareFiles[item["Square"]]}.png').convert('RGBA')
     im3 = Image.open(f'../image/Eyes/{eyeFiles[item["Eye"]]}.png').convert('RGBA')
+    im3 = im3.resize((499,499))
 
 
 
     #Create each composite
     com1 = Image.alpha_composite(im1, im2)
-    rgb_im = com1.convert('RGB')
-    # com2 = Image.alpha_composite(com1, im3)
+    # rgb_im = com1.convert('RGB')
+    com2 = Image.alpha_composite(com1, im3)
 
     #Convert to RGB
-    # rgb_im = com2.convert('RGB')
-#     display(rgb_im.resize((400,400), Image.NEAREST))
+    rgb_im = com2.convert('RGB')
+    # display(rgb_im.resize((400,400), Image.NEAREST))
 
+    
+    # create new image file 
     file_name = str(item["tokenId"]) + ".jpg"
     rgb_im.save("../image/output/" + file_name)
     print(f'{str(item["tokenId"])} done')
+
+    #upload image to IPFS, get hash
+
+    # create new entry in the json file / create new json file.
+    metadata = {
+        "name": f'AB #{item["tokenId"]}',
+        "description": f'A weird aninmal having {item["Square"]} body and a {item["Eye"]} eye!',
+        "image_url" : f'ipfs://ipfs/<place_holder>/{item["tokenId"]}',
+        "Background" : item["Background"],
+        "Body" : item["Square"],
+        "Eye" : item["Eye"],
+        "tokenId": item["tokenId"]
+    }
+
+    json_object  = json.dumps(metadata, indent=4)
+
+    with open(f'./metadata_out/{item["tokenId"]}.json', "w") as outfile:
+        outfile.write(json_object)
+        # outfile.write(",\n")
+
